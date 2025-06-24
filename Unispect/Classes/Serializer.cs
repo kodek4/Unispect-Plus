@@ -1,7 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.IO.Compression;
-using System.Runtime.Serialization.Formatters.Binary;
+using System.Text;
+using Newtonsoft.Json;
 
 namespace Unispect
 {
@@ -11,11 +12,8 @@ namespace Unispect
         {
             try
             {
-                using (Stream stream = File.Open(filePath, FileMode.Create))
-                {
-                    var bin = new BinaryFormatter();
-                    bin.Serialize(stream, objectToSerialize);
-                }
+                var json = JsonConvert.SerializeObject(objectToSerialize, Formatting.Indented);
+                File.WriteAllText(filePath, json, Encoding.UTF8);
             }
             catch (IOException)
             {
@@ -27,11 +25,13 @@ namespace Unispect
             // Todo: maybe implement a progress indicator by wrapping the stream
             try
             {
+                var json = JsonConvert.SerializeObject(objectToSerialize, Formatting.None);
+                var bytes = Encoding.UTF8.GetBytes(json);
+                
                 using (Stream fileStream = File.Open(filePath, FileMode.Create))
                 using (var compressedStream = new GZipStream(fileStream, CompressionMode.Compress))
                 {
-                    var bin = new BinaryFormatter();
-                    bin.Serialize(compressedStream, objectToSerialize);
+                    compressedStream.Write(bytes, 0, bytes.Length);
                 }
             }
             catch (IOException)
@@ -45,10 +45,10 @@ namespace Unispect
 
             try
             {
-                using (Stream stream = File.Open(filePath, FileMode.Open))
+                if (File.Exists(filePath))
                 {
-                    var bin = new BinaryFormatter();
-                    result = (T)bin.Deserialize(stream);
+                    var json = File.ReadAllText(filePath, Encoding.UTF8);
+                    result = JsonConvert.DeserializeObject<T>(json) ?? new T();
                 }
             }
             catch (IOException)
@@ -57,6 +57,7 @@ namespace Unispect
 
             return result;
         }
+        
         public static T LoadCompressed<T>(string filePath) where T : new()
         {
             var result = new T();
@@ -65,9 +66,10 @@ namespace Unispect
             {
                 using (Stream fileStream = File.Open(filePath, FileMode.Open)) 
                 using (var decompressStream = new GZipStream(fileStream, CompressionMode.Decompress))
+                using (var reader = new StreamReader(decompressStream, Encoding.UTF8))
                 {
-                    var bin = new BinaryFormatter();
-                    result = (T)bin.Deserialize(decompressStream);
+                    var json = reader.ReadToEnd();
+                    result = JsonConvert.DeserializeObject<T>(json) ?? new T();
                 }
             }
             catch (IOException)
