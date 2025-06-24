@@ -10,7 +10,7 @@ namespace Unispect
     // https://github.com/Unity-Technologies/mono/blob/unity-2018.4-mbe
     // Updated for v2022
 
-    internal static class Offsets
+    public static class Offsets
     {
         public static int ImageDosHeaderELfanew = 0x3c; // PtrToPEHeader -> e_lfanew
         //public const int ImageNtHeadersSignature = 0x0;
