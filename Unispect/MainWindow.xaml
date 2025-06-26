@@ -6,6 +6,7 @@
         xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
         xmlns:unispect="clr-namespace:Unispect"
+        xmlns:sdk="clr-namespace:Unispect.SDK;assembly=Unispect.SDK"
         x:Class="Unispect.MainWindow"
         mc:Ignorable="d"
         Title="Unispect - Mono Type Dumper" Height="350" Width="800" ResizeMode="CanMinimize" 
@@ -137,7 +138,7 @@
                         </Style>
                     </TreeView.ItemContainerStyle>
                     <TreeView.Resources>
-                        <HierarchicalDataTemplate DataType="{x:Type unispect:TypeDefWrapper}" ItemsSource="{Binding Path=Fields}">
+                        <HierarchicalDataTemplate DataType="{x:Type sdk:TypeDefWrapper}" ItemsSource="{Binding Path=Fields}">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="{Binding Path=FullName}" />
                                 <TextBlock Text=" ["/>
@@ -151,7 +152,7 @@
                                 <TextBlock Text="{Binding Path=InterfacesText}" />
                             </StackPanel>
                         </HierarchicalDataTemplate>
-                        <HierarchicalDataTemplate DataType="{x:Type unispect:FieldDefWrapper}">
+                        <HierarchicalDataTemplate DataType="{x:Type sdk:FieldDefWrapper}">
                             <StackPanel Orientation="Horizontal" MouseRightButtonUp="UIElement_OnMouseRightButtonUp">
                                 <TextBlock Text="{Binding Path=OffsetHex}" />
                                 <TextBlock Text="{Binding Path=ConstantValueType}" />
@@ -207,7 +208,7 @@
                     <TextBlock Margin="0,10,0,2">Fields</TextBlock>
                     <ListBox x:Name="LbFields" Width="280" Height="150">
                         <ListBox.ItemTemplate>
-                            <DataTemplate DataType="{x:Type unispect:FieldDefWrapper}">
+                            <DataTemplate DataType="{x:Type sdk:FieldDefWrapper}">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="{Binding Path=OffsetHex}" />
                                     <TextBlock Text="{Binding Path=ConstantValueType}" />

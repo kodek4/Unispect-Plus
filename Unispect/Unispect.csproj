@@ -12,7 +12,7 @@
     <LangVersion>latest</LangVersion>
     <Prefer32Bit>false</Prefer32Bit>
     <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
@@ -45,12 +45,11 @@
   <ItemGroup>
     <Content Include="targets\v2018.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>
     <Content Include="targets\v2022.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Plugins\MemoryPluginTemplate.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>
   </ItemGroup>
 
@@ -58,5 +57,28 @@
     <Resource Include="unispect.ico" />
     <Resource Include="FodyWeavers.xml" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Unispect.SDK\Unispect.SDK.csproj" />
+  </ItemGroup>
+
+  <!-- Auto-copy built-in plugins to the publish directory -->
+  <Target Name="CopyBuiltInPluginsToPublish" AfterTargets="Publish">
+    <PropertyGroup>
+      <DMAPluginSourceDir>..\Plugins\Unispect.DMA\bin\$(Configuration)\$(TargetFramework)\</DMAPluginSourceDir>
+      <DMAPluginDestDir>$(PublishDir)Plugins\Unispect.DMA\</DMAPluginDestDir>
+    </PropertyGroup>
+    
+    <ItemGroup>
+      <!-- Find all files in the DMA plugin's build output -->
+      <DMAPluginFiles Include="$(DMAPluginSourceDir)**\*.*" />
+    </ItemGroup>
+    
+    <!-- Create the destination directory and copy files -->
+    <MakeDir Directories="$(DMAPluginDestDir)" />
+    <Copy SourceFiles="@(DMAPluginFiles)" 
+          DestinationFolder="$(DMAPluginDestDir)"
+          SkipUnchangedFiles="true" />
+  </Target>
 
 </Project>

@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,9 +15,11 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
 using MenuItem = System.Windows.Controls.MenuItem;
+using Unispect.SDK;
 
 
 namespace Unispect
@@ -254,7 +257,7 @@ namespace Unispect
         {
             if (_memoryProxyType == typeof(BasicMemory))
             {
-                var shouldContinue = await Utilities.MessageBox(
+                var shouldContinue = await GuiUtilities.MessageBox(
                     $"You are using native user-mode API.{Environment.NewLine}" +
                     "Are you sure you wish to continue?",
                     messageDialogStyle: MessageDialogStyle.AffirmativeAndNegative,
@@ -313,6 +316,25 @@ namespace Unispect
             PbMain.FadeIn(200);
 
             var fileName = _dumpToFile ? TxOutputFile.Text : "";
+            
+            // Ensure we have a valid output path
+            if (_dumpToFile)
+            {
+                if (string.IsNullOrEmpty(fileName))
+                {
+                    // Default to output directory if no filename specified
+                    var outputDir = Path.Combine(Directory.GetCurrentDirectory(), "output");
+                    Directory.CreateDirectory(outputDir); // Ensure directory exists
+                    fileName = Path.Combine(outputDir, "dump.txt");
+                }
+                else if (!Path.IsPathRooted(fileName))
+                {
+                    // Convert relative path to full path in output directory
+                    var outputDir = Path.Combine(Directory.GetCurrentDirectory(), "output");
+                    Directory.CreateDirectory(outputDir); // Ensure directory exists
+                    fileName = Path.Combine(outputDir, fileName);
+                }
+            }
             var processHandle = TxProcessHandle.Text;
             var moduleToDump = TxInspectorTarget.Text;
 
@@ -366,18 +388,46 @@ namespace Unispect
 
         private async void BtnCreateAsm_Click(object sender, RoutedEventArgs e)
         {
-            await Utilities.MessageBox("Not implemented yet");
+            await this.ShowMessageAsync("Unispect", "Future home of the 'create assembly from selection' feature");
         }
 
         private void BtnSystemMenuClick(object sender, RoutedEventArgs e)
         {
-            Utilities.ShowSystemMenu(this);
+            ShowSystemMenu();
+        }
+
+        [DllImport("user32.dll")]
+        private static extern bool SendMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetSystemMenu(IntPtr hWnd, bool bRevert);
+
+        [DllImport("user32.dll")]
+        private static extern int TrackPopupMenu(IntPtr hMenu, uint uFlags, int x, int y,
+            int nReserved, IntPtr hWnd, IntPtr prcRect);
+
+        [DllImport("user32.dll")]
+        private static extern bool GetWindowRect(IntPtr hWnd, out IntRect rect);
+
+        public struct IntRect
+        {
+            public int Left, Top, Right, Bottom;
+        }
+
+        private new void ShowSystemMenu()
+        {
+            var hWnd = new WindowInteropHelper(this).Handle;
+            GetWindowRect(hWnd, out var pos);
+            var hMenu = GetSystemMenu(hWnd, false);
+            var cmd = TrackPopupMenu(hMenu, 0x100, pos.Left + 20, pos.Top + 20, 0, hWnd, IntPtr.Zero);
+            if (cmd > 0) SendMessage(hWnd, 0x112, (IntPtr)cmd, IntPtr.Zero);
         }
 
         private void BtnShowInspector_OnClick(object sender, RoutedEventArgs e)
         {
+            IsFlyoutOpen = !IsFlyoutOpen;
             TxSearchBox.Text = "";
-            TypeInspectorFlyout.IsOpen = true;
+            OnFlyoutOpenChanged(true);
         }
 
         private bool _isFlyoutOpen;
@@ -430,6 +480,11 @@ namespace Unispect
             ToggleProcessingButtons(false);
 
             var fileName = TxOutputFile.Text;
+            // Ensure we have a full path for the output file
+            if (!string.IsNullOrEmpty(fileName) && !Path.IsPathRooted(fileName))
+            {
+                fileName = Path.Combine(Directory.GetCurrentDirectory(), fileName);
+            }
             var procHandle = TxProcessHandle.Text;
             var modToDump = TxInspectorTarget.Text;
             Log.Add($"Dumping definitions and offsets to file \"{fileName}\"");
@@ -725,41 +780,74 @@ namespace Unispect
             if (!Directory.Exists(pluginPath))
                 Directory.CreateDirectory(pluginPath);
 
-            //Log.Add($"Searching for plug-ins in: {pluginPath}");
+            Log.Add($"DEBUG: Searching for plug-ins in: {pluginPath}");
 
             // We will add our BasicMemory class here as an option as well.
             retList.Add(typeof(BasicMemory));
+            Log.Add($"DEBUG: Added BasicMemory plugin");
 
-            // Search all sub directories, just in case the user decides to group their library with it's potential additional resources.
-            foreach (var fileName in Directory.GetFiles(pluginPath, "*.dll", SearchOption.AllDirectories))
+            // Use convention-based loading: only load DLLs that match their parent folder name
+            var pluginDirectories = Directory.GetDirectories(pluginPath);
+            Log.Add($"DEBUG: Found {pluginDirectories.Length} plugin directories");
+            
+            foreach (var pluginDir in pluginDirectories)
             {
+                var folderName = Path.GetFileName(pluginDir);
+                var expectedDllPath = Path.Combine(pluginDir, folderName + ".dll");
+                
+                Log.Add($"DEBUG: Processing plugin directory: {folderName}");
+                Log.Add($"DEBUG: Looking for plugin DLL: {Path.GetFileName(expectedDllPath)}");
+                
+                if (!File.Exists(expectedDllPath))
+                {
+                    Log.Add($"DEBUG: Plugin DLL not found for {folderName}, skipping directory");
+                    continue;
+                }
+                
                 try
                 {
-                    var assembly = Assembly.LoadFrom(fileName);
+                    var assembly = Assembly.LoadFrom(expectedDllPath);
+                    Log.Add($"DEBUG: Successfully loaded assembly: {assembly.FullName}");
 
                     // We will grab the first type found marked with our custom attribute.
-                    var targetClass = assembly.GetTypes().FirstOrDefault(type =>
+                    var allTypes = assembly.GetTypes();
+                    Log.Add($"DEBUG: Assembly contains {allTypes.Length} types");
+                    
+                    var targetClass = allTypes.FirstOrDefault(type =>
                         type.GetCustomAttributes(typeof(UnispectPluginAttribute), true).Length > 0);
 
                     if (targetClass == null)
                     {
                         Log.Warn(
-                            $"{Path.GetFileName(fileName)} does not contain any classes with the UnispectPlugin attribute.");
+                            $"{folderName}.dll does not contain any classes with the UnispectPlugin attribute.");
                         continue;
                     }
 
+                    Log.Add($"DEBUG: Found plugin class: {targetClass.FullName}");
                     retList.Add(targetClass);
+                }
+                catch (BadImageFormatException)
+                {
+                    // This shouldn't happen with our convention, but handle gracefully
+                    Log.Add($"DEBUG: {folderName}.dll is not a valid .NET assembly, skipping");
                 }
                 catch (ReflectionTypeLoadException ex)
                 {
-                    Log.Exception($"{Path.GetFileName(fileName)}: The plugin definitions were not implemented correctly.", ex);
+                    Log.Exception($"{folderName}.dll: The plugin definitions were not implemented correctly.", ex);
+                    Log.Add($"DEBUG: ReflectionTypeLoadException details:");
+                    foreach (var loaderEx in ex.LoaderExceptions)
+                    {
+                        if (loaderEx != null)
+                            Log.Add($"DEBUG: - {loaderEx.Message}");
+                    }
                 }
                 catch (Exception ex)
                 {
-                    Log.Exception($"Error loading: {Path.GetFileName(fileName)}.", ex);
+                    Log.Exception($"Error loading plugin: {folderName}.dll.", ex);
                 }
             }
 
+            Log.Add($"DEBUG: Total plugins loaded: {retList.Count}");
             return retList;
         }
 

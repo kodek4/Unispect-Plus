@@ -351,3 +351,9 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+TypeDbs/
+Unispect.CLI.Tests/TestResults/
+
+# Project-specific ignores
+TODO.MD
++.cursor/

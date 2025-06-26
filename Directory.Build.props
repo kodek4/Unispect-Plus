@@ -1,0 +1,13 @@
+<Project>
+  <PropertyGroup>
+    <!-- This is the central version for all projects in the solution -->
+    <Version>1.0.0</Version>
+    
+    <!-- Other shared properties -->
+    <Authors>kodek4</Authors>
+    <Company>kodek4</Company>
+    <Product>Unispect-Plus</Product>
+    <Copyright>Copyright © 2024 kodek4</Copyright>
+    <RepositoryUrl>https://github.com/kodek4/Unispect-Plus</RepositoryUrl>
+  </PropertyGroup>
+</Project> 

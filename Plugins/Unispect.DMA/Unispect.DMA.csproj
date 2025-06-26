@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <UseWPF>false</UseWPF>
+    <OutputType>Library</OutputType>
+    <AssemblyName>Unispect.DMA</AssemblyName>
+    <RootNamespace>UnispectDMAPlugin</RootNamespace>
+    <PlatformTarget>x64</PlatformTarget>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Description>DMA Memory Plugin for Unispect using MemProcFS/PciLeech</Description>
+    <RepositoryUrl>https://github.com/gmh5225/DMA-unispectDMAPlugin</RepositoryUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Unispect.SDK\Unispect.SDK.csproj" />
+  </ItemGroup>
+
+  <!-- Copy plugin and native dependencies to proper subfolder structure -->
+  <Target Name="CopyPluginToSubfolder" AfterTargets="Build">
+    <PropertyGroup>
+      <PluginOutputDir>$(OutputPath)Plugins\$(AssemblyName)\</PluginOutputDir>
+    </PropertyGroup>
+    
+    <!-- Create the plugin directory -->
+    <MakeDir Directories="$(PluginOutputDir)" />
+    
+    <!-- Copy the main plugin DLL and related files -->
+    <Copy SourceFiles="$(OutputPath)$(AssemblyName).dll" DestinationFolder="$(PluginOutputDir)" />
+    <Copy SourceFiles="$(OutputPath)$(AssemblyName).pdb" DestinationFolder="$(PluginOutputDir)" Condition="Exists('$(OutputPath)$(AssemblyName).pdb')" />
+    <Copy SourceFiles="$(OutputPath)$(AssemblyName).deps.json" DestinationFolder="$(PluginOutputDir)" Condition="Exists('$(OutputPath)$(AssemblyName).deps.json')" />
+    
+    <!-- Copy native dependencies to the plugin subfolder -->
+    <Copy SourceFiles="vmm.dll" DestinationFolder="$(PluginOutputDir)" Condition="Exists('vmm.dll')" />
+    <Copy SourceFiles="leechcore.dll" DestinationFolder="$(PluginOutputDir)" Condition="Exists('leechcore.dll')" />
+    <Copy SourceFiles="leechcore_driver.dll" DestinationFolder="$(PluginOutputDir)" Condition="Exists('leechcore_driver.dll')" />
+    <Copy SourceFiles="FTD3XX.dll" DestinationFolder="$(PluginOutputDir)" Condition="Exists('FTD3XX.dll')" />
+    <Copy SourceFiles="symsrv.dll" DestinationFolder="$(PluginOutputDir)" Condition="Exists('symsrv.dll')" />
+    <Copy SourceFiles="dbghelp.dll" DestinationFolder="$(PluginOutputDir)" Condition="Exists('dbghelp.dll')" />
+  </Target>
+
+</Project> 
