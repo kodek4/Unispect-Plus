@@ -11,7 +11,7 @@
         mc:Ignorable="d"
         Title="Unispect Plus - Mono Type Dumper" Height="350" Width="800" ResizeMode="CanMinimize"
         WindowStartupLocation="CenterScreen"
-        Loaded="OnLoaded"
+        Loaded="MainWindow_Loaded"
         Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}">
     <mah:MetroWindow.Resources>
         <Style x:Key="TransparentStyle" TargetType="{x:Type Button}">
