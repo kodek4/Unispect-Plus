@@ -248,11 +248,8 @@ Generated_Code/
 # to a newer Visual Studio version. Backup files are not needed,
 # because we have git ;-)
 _UpgradeReport_Files/
-Backup*/
+BackupReport.XML
 UpgradeLog*.XML
-UpgradeLog*.htm
-ServiceDefinition*.csdef
-ServiceConfiguration*.cscfg
 
 # SQL Server files
 *.mdf
@@ -384,3 +381,10 @@ TODO.MD
 # Other
 TODO.MD
 unispect.settings
+
+# Mac
+.DS_Store
+
+# User-generated
+*.dll
+*.txt
