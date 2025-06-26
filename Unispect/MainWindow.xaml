@@ -9,7 +9,9 @@
         xmlns:sdk="clr-namespace:Unispect.SDK;assembly=Unispect.SDK"
         x:Class="Unispect.MainWindow"
         mc:Ignorable="d"
-        Title="Unispect - Mono Type Dumper" Height="350" Width="800" ResizeMode="CanMinimize" 
+        Title="Unispect Plus - Mono Type Dumper" Height="350" Width="800" ResizeMode="CanMinimize"
+        WindowStartupLocation="CenterScreen"
+        Loaded="OnLoaded"
         Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}">
     <mah:MetroWindow.Resources>
         <Style x:Key="TransparentStyle" TargetType="{x:Type Button}">
@@ -169,7 +171,7 @@
                     </TreeView.Resources>
                 </TreeView>
             </mah:Flyout>
-            <mah:Flyout Header="Unispect" IsOpen="{Binding ElementName=TypeInspectorFlyout, Path=IsOpen}" Position="Left" Width="200" CloseButtonVisibility="Hidden" Background="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}">
+            <mah:Flyout Header="Unispect Plus" IsOpen="{Binding ElementName=TypeInspectorFlyout, Path=IsOpen}" Position="Left" Width="200" CloseButtonVisibility="Hidden" Background="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}">
                 <!-- Left flyout (searchbox etc) -->
                 <StackPanel Margin="5,0,0,0">
                     <TextBlock>Search</TextBlock>
