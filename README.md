@@ -2,27 +2,10 @@
 
 ![Unispect Logo](https://github.com/Razchek/Unispect/blob/master/Gallery/UnispectLogo.png?raw=true)
 
-**An Expanded Suite for Exploring Unity Mono Runtime Type Information**
-
 Unispect Plus is a fork and continuation of the original [Unispect project by @Razchek](https://github.com/Razchek/Unispect). This project builds upon the original's foundation of inspecting and dumping type definitions from Unity games compiled with the Mono scripting backend by refactoring the core logic into a reusable Software Development Kit (SDK) and adding a Command-Line Interface (CLI) alongside the original Graphical User Interface (GUI).
 
 The goal is to provide a more modular, scriptable, and extensible platform for interacting with Unity's Mono runtime.
 
-![Powered By Coffee](https://github.com/Razchek/Unispect/blob/master/Gallery/poweredByCoffee.png?raw=true)
-
-## Table of Contents
-
-*   [Original Unispect Legacy](#original-unispect-legacy)
-*   [Components of Unispect Plus](#components-of-unispect-plus)
-*   [Screenshots (GUI)](#screenshots-gui)
-*   [Getting Started (End Users)](#getting-started-end-users)
-*   [Features](#features)
-*   [Limitations & Considerations](#limitations--considerations)
-*   [Building from Source](#building-from-source)
-*   [Requirements](#requirements)
-*   [Technology Stack](#technology-stack)
-*   [Support](#support)
-*   [License](#license)
 
 ## Original Unispect Legacy
 
@@ -34,24 +17,21 @@ Unispect Plus is structured into three primary components:
 
 *   **Unispect (GUI)**: The refactored graphical user interface, retaining the familiar window for interactive dumping, browsing, searching, and exporting type definitions. It now utilizes the Unispect SDK internally.
 *   **Unispect.CLI (CLI)**: A new command-line application built on the Unispect SDK. It provides a terminal-based interface for initiating dumps, managing the cache, searching, querying specific definitions, comparing dumps, and generating statistics. This component is suitable for scripting, automation, and use in environments without a GUI.
-    *   For detailed CLI usage, refer to [Unispect.CLI/README.md](Unispect.CLI/README.md).
+    *   **For detailed CLI usage, refer to [Unispect.CLI/README.md](Unispect.CLI/README.md).**
 *   **Unispect.SDK (SDK)**: A dedicated .NET library containing the shared, core logic. This includes the memory access abstraction, Mono runtime inspection, type definition parsing, caching, and search/query algorithms. The SDK is designed to be integrable into other .NET applications and provides the base for implementing custom memory access methods via plugins (`MemoryProxy`).
-    *   For SDK API details and plugin development guidance, refer to [Unispect.SDK/README.md](Unispect.SDK/README.md).
+    *   **For SDK API details and plugin development guidance, refer to [Unispect.SDK/README.md](Unispect.SDK/README.md).**
 
 ## Screenshots (GUI)
 
-*(These screenshots depict the **Unispect (GUI)** component, largely similar in layout to the original Unispect)*
 
 ![Screenshot 1](https://github.com/Razchek/Unispect/blob/master/Gallery/screenshot1.png?raw=true)
-*Main GUI Window (Mono Type Dumper)*
+
 
 ![Screenshot 2](https://github.com/Razchek/Unispect/blob/master/Gallery/screenshot2.png?raw=true)
-*Type Inspector View*
 
 ![Screenshot 3](https://github.com/Razchek/Unispect/blob/master/Gallery/screenshot3.png?raw=true)
-*Loading Memory Plugin in GUI*
 
-## Getting Started (End Users)
+## Getting Started
 
 To use a pre-built release of Unispect Plus (either the GUI or CLI), download the appropriate ZIP artifact from the [releases page](https://github.com/kodek4/Unispect-Plus/releases).
 
@@ -63,7 +43,7 @@ To use a pre-built release of Unispect Plus (either the GUI or CLI), download th
 
 Leveraging the shared SDK, Unispect Plus offers the following capabilities, accessible via the GUI, CLI, or directly through the SDK:
 
-*   **Direct Memory Access**: Inspect live Unity processes by reading memory, supporting both standard OS APIs and custom methods via plugins (e.g., DMA).
+*   **Memory Access**: Inspect live Unity processes by reading memory, supporting both standard OS APIs and custom methods via plugins (e.g., DMA).
 *   **Comprehensive Type Information**: Retrieve and display definitions for classes, structs, interfaces, and enums.
 *   **Accurate Field Details**: Obtain field definitions, including memory offsets, types, and indicators for static/constant fields.
 *   **Runtime Deobfuscation**: Basic heuristic-based deobfuscation for common patterns found in managed assemblies.
@@ -76,7 +56,7 @@ Leveraging the shared SDK, Unispect Plus offers the following capabilities, acce
 *   **Statistics Generation**: The CLI/SDK can generate statistics about a dump, such as total types, fields, distribution by type kind, common field types, etc.
 *   **Extensible Memory Access**: Implement custom memory reading logic by creating a `MemoryProxy` plugin using the SDK.
 
-**GUI Specific Features (Inherited/Enhanced):**
+**GUI Specific Features**
 
 *   Interactive tree view for browsing the hierarchical structure of types and fields.
 *   Easy navigation to parent types or field types via clickable links in the inspector.
@@ -124,18 +104,6 @@ To build Unispect Plus from the source code:
 *   **End Users (CLI)**: Windows x64 operating system. The default CLI build is self-contained and should not require a separate runtime installation.
 *   **Developers (Building from Source)**: [.NET SDK 9.0](https://dotnet.microsoft.com/download/dotnet/9.0) or newer (x64). Windows x64 operating system.
 
-## Technology Stack
-
-Unispect Plus is built using:
-
-*   **.NET 9.0** (Core SDK & CLI)
-*   **.NET Framework 4.8** (GUI - maintained for broader compatibility, built with .NET 9 SDK)
-*   **C#**
-*   **WPF** (for the GUI)
-*   [MahApps.Metro](https://github.com/MahApps/MahApps.Metro) (GUI styling)
-*   [System.CommandLine](https://github.com/dotnet/command-line-api) (for the CLI)
-*   [Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json) (for serialization and caching)
-*   [Costura.Fody](https://github.com/Fody/Costura) (for embedding dependencies in GUI release)
 
 ## Support
 
@@ -143,7 +111,7 @@ Contributions are welcome! Feel free to fork the repository and submit pull requ
 
 For issues or questions, please use the [GitHub Issues page](https://github.com/kodek4/Unispect-Plus/issues).
 
-You can also [![Buy Me A Coffee](https://img.shields.io/badge/--_Coffee%3F-blue?logo=ko-fi&label=Powered%20by&color=orange)](https://ko-fi.com/razchek)
+If you want to support, you should support the original author. 
 
 ## License
 
